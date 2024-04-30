@@ -1,0 +1,25 @@
+1) https://drive.google.com/file/d/1TROmpCRFsy9hdkHGkGhHHttJzFiSpKX5/view
+Time : 1:05:00
+-data fetching from API
+-Redux basic
+-displaying item in another page
+
+2) https://drive.google.com/file/d/1IsGdi8G7y0lftvkaXuJnuDxvhK21375Q/view
+-count by Redux
+
+3) https://drive.google.com/file/d/1RQD0VFC7lkVnt750dFUc39rP2IgsaVwr/view
+-Add to Cart
+-Empty Cart
+
+4) https://drive.google.com/file/d/11VIQ4VJlxDNLPecNAQelziDBFlR6cKvI/view
+-Remove item from cart
+
+5) https://drive.google.com/file/d/1He0eKvW00CoimDgEkaLS8C-UpgAoGyDh/view
+Search Product in list
+
+
+Prooduct API
+https://fakestoreapi.com/products
+https://fakestoreapi.com/carts
+
+

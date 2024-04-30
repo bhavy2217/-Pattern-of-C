@@ -1,0 +1,31 @@
+From installation with vite
+
+1. npm create vite@latest
+2. cd project
+3. npm install
+4. npm run dev
+
+from tailwind css website run following cmd
+5.npm install -D tailwindcss postcss autoprefixer
+6.npx tailwindcss init -p
+
+7. Changes to tailwind.config.js file.
+ content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+
+8. Changes to index.css file
+Adding below code in index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+============================
+For Redux installation
+
+npm install @reduxjs/toolkit
+
+npm install react-redux

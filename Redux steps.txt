@@ -1,0 +1,26 @@
+Redux steps
+
+1. install Redux
+npm i redux
+
+2. instal library
+npm i react-redux
+
+3. Folder Structure
+Redux
+ Action
+ Constants
+ Reducers
+ Store
+
+->install redux-persist redux-logger
+redux-logger : konsi event fire ki, konsi work nahi kar rahi he, 
+		konsa state update hua he, konsa nahi hua
+redux-persist: local storage ka data store karega, 
+		jab bhi page refresh hoga, data clear nahi hoga
+
+Create Action and dispatch
+1.create action 
+2.create constants
+3.create reducer
+4.create combine reducer
