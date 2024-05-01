@@ -1,0 +1,297 @@
+/* eslint-disable prefer-regex-literals */
+/* eslint-disable consistent-return */
+/* eslint-disable perfectionist/sort-imports */
+/* eslint-disable no-unused-vars */
+/* eslint-disable unused-imports/no-unused-imports */
+import { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Card from "@mui/material/Card";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { alpha, useTheme } from "@mui/material/styles";
+import InputAdornment from "@mui/material/InputAdornment";
+
+import { useRouter } from "src/routes/hooks";
+
+import { bgGradient } from "src/theme/css";
+
+import Logo from "src/components/logo";
+import Iconify from "src/components/iconify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  Snackbar,
+  useMediaQuery,
+  CircularProgress,
+} from "@mui/material";
+import SarrahLogo from "../../../public/assets/Sarrah_Logo_2.png";
+import API from "../../api/api";
+
+// ----------------------------------------------------------------------
+
+export default function LoginView() {
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const theme = useTheme();
+
+  const router = useRouter();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [formData, setFormData] = useState({
+    cMobileNo: "",
+    cPassword: "",
+  });
+
+  const handleFieldChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Severity can be "success" or "error"
+
+  // Function to open the Snackbar
+  const handleSnackbarOpen = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const [mobileNumberError, setMobileNumberError] = useState("");
+  const pattern = new RegExp(/^\d{1,10}$/);
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      console.log(event);
+      localStorage.setItem("event", event);
+
+      const { tokenLocalStorage, deviceUniqueId } = JSON.parse(event.data);
+      console.log("Token Local Storage:", tokenLocalStorage);
+      console.log("Device Unique ID:", deviceUniqueId);
+      localStorage.setItem("deviceUniqueId", deviceUniqueId);
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+  const location = useLocation();
+  const [idParam, setIdParam] = useState(null);
+
+  console.log(idParam);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const id = searchParams.get("id");
+    if (id) {
+      setIdParam(id);
+    }
+  }, [location.search]);
+
+  const event = localStorage.getItem("event");
+
+  const DUI = localStorage.getItem("deviceUniqueId");
+  const navigate = useNavigate();
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const requiredFields = ["cMobileNo", "cPassword"];
+      const errorFields = requiredFields.filter((field) => !formData[field]);
+      
+      if (errorFields.length === 0) {
+        setLoading(true);
+        setMobileNumberError(false);
+        const generateUrl = `/api/auth/customer`;
+        const response = await API.post(generateUrl, formData);
+        const NID = response.data.nid;
+        console.log(response);                      
+        setTimeout(() => {
+          if (response.status === 200) {
+            handleSnackbarOpen(response.data.message, "success");
+            setTimeout(() => {
+              navigate("/Sarrah/home");
+            }, 1500);
+            localStorage.setItem("nid", NID);
+          } else {
+            handleSnackbarOpen(response.data.message, "error");
+            setLoading(false);
+          }
+        }, 800);
+      } else {
+        setLoading(false);
+        handleSnackbarOpen("Please Enter Mobile Number or Password", "error");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+      handleSnackbarOpen(error.response.data.error, "error");
+      setLoading(false);
+    }
+  };
+
+  const renderForm = (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Stack spacing={3}>
+        <TextField
+          name="mobileNumber"
+          label="Mobile Number"
+          error={mobileNumberError}
+          value={formData.cMobileNo}
+          type="number"
+          // onChange={(e) => {
+          //   handleFieldChange(e.target.value);
+          //   if (!pattern.test(e.target.value)) setMobileNumberError(true);
+          //   else setMobileNumberError(false);
+          // }}
+          onChange={(e) => {
+            handleFieldChange("cMobileNo", e.target.value);
+            if (!pattern.test(e.target.value)) setMobileNumberError(true);
+            else setMobileNumberError(false);
+          }}
+          onInput={(e) => {
+            e.target.value = Math.max(0, parseInt(e.target.value, 10))
+              .toString()
+              .slice(0, 10);
+          }}
+        />
+
+        <TextField
+          name="password"
+          label="Password"
+          value={formData.cPassword}
+          type={showPassword ? "text" : "password"}
+          onChange={(e) => {
+            handleFieldChange("cPassword", e.target.value);
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  <Iconify
+                    icon={showPassword ? "eva:eye-fill" : "eva:eye-off-fill"}
+                  />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Stack>
+
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="flex-end"
+        sx={{ my: 3 }}
+      >
+        <Link variant="subtitle2" underline="hover">
+          Forgot password?
+        </Link>
+      </Stack>
+      <Button
+        fullWidth
+        size="large"
+        variant="contained"
+        type="submit"
+        disabled={loading}
+        style={{
+          position: "relative",
+          backgroundColor: loading === true ? "#d7d7d7" : "#000",
+          color: "#fff",
+        }}
+      >
+        {loading && (
+          <CircularProgress
+            size={24}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              marginLeft: -12,
+              marginTop: -12,
+            }}
+          />
+        )}
+        {loading ? " " : "Login"}
+      </Button>
+    </Box>
+  );
+
+  return (
+    <Box
+      sx={{
+        ...bgGradient({
+          color: "#fff",
+          imgUrl: "/assets/background/overlay_4.jpg",
+        }),
+        height: 1,
+      }}
+    >
+      <Stack alignItems="center" sx={{ height: 1 }} justifyContent="center">
+        <Box className="LoginScreenHeaderLogo">
+          <Box component="img" src={SarrahLogo} />
+        </Box>
+        <Card
+          sx={{
+            px: 5,
+            py: 8,
+            width: 1,
+            maxWidth: 420,
+            boxShadow: 0,
+          }}
+        >
+          <Typography variant="h3" textAlign="center">
+            Login
+          </Typography>
+
+          <Divider sx={{ my: 3, borderColor: "transparent !important" }} />
+
+          {renderForm}
+        </Card>
+      </Stack>
+      <ToastContainer />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: isSmallScreen ? "center" : "right",
+        }}
+      >
+        <Alert
+          variant="filled"
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+}
